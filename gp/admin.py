@@ -9,8 +9,8 @@ class AreaConcursoAdmin(admin.ModelAdmin):
     search_fields = ['area', 'area_pai' ]
 
 class ServidorAdmin(admin.ModelAdmin):
-    fields = ('first_name', 'last_name', 'username', 'email', 'is_active', 'is_staff', 'groups', 'cpf', 'siape', 'titulacao', 'regime_trabalho', 'situacao_funcional', 'residencia', 'inicio', 'fim') #define os campos e sua ordem no admin
-    list_display = ('first_name', 'last_name', 'username', 'cpf', 'siape', 'email', )  # definindo o que será exibido na listagem
+    fields = ('first_name', 'last_name', 'email', 'is_active', 'is_staff', 'groups', 'cpf', 'siape', 'titulacao', 'regime_trabalho', 'situacao_funcional', 'residencia', 'inicio', 'fim') #define os campos e sua ordem no admin
+    list_display = ('cpf', 'first_name', 'last_name', 'siape', 'email', )  # definindo o que será exibido na listagem
     list_filter = ('is_active', )  #definindo os filtros
     search_fields = ['first_name', 'last_name', ]
     

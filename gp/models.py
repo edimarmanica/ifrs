@@ -74,6 +74,16 @@ class Servidor(User):
     User._meta.get_field('last_name').blank = False
     User._meta.get_field('email').blank = False
     
+    #adicionando tip para alguns campos da superclasse
+    User._meta.get_field('first_name').help_text = "Por exemplo, se seu nome é 'João Carlos Martins da Silva', preencha neste campo 'João'"
+    User._meta.get_field('last_name').help_text = "Por exemplo, se seu nome é 'João Carlos Martins da Silva', preencha neste campo 'Carlos Martins da Silva'"
+    
+    def save(self, force_insert=False, force_update=False):
+        if self._state.adding:
+            self.username = self.cpf # username é o CPF
+            self.set_password(self.siape) # a senha inicial é o SIAPE
+        super(Servidor, self).save(force_insert, force_update)
+    
     def __str__(self):
        return self.first_name + " " + self.last_name
    
