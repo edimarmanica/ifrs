@@ -67,7 +67,7 @@ class Servidor(User):
     residencia = models.IntegerField(choices=CHOICES_RESIDENCIA, verbose_name="Residência")
     inicio = models.DateField(verbose_name="Início no Campus", help_text="Data em que o servidor entrou em efetivo exercício no Campus.")
     fim = models.DateField(verbose_name="Saída do Campus", blank=True, null=True, help_text="Último dia que o servidor esteve em efetivo exercício no Campus.")
-
+    observacoes = models.TextField(verbose_name="Observações", blank=True, null=True)
     
     #tornando alguns campos da superclasse obrigatórios
     User._meta.get_field('first_name').blank = False
@@ -77,6 +77,9 @@ class Servidor(User):
     #adicionando tip para alguns campos da superclasse
     User._meta.get_field('first_name').help_text = "Por exemplo, se seu nome é 'João Carlos Martins da Silva', preencha neste campo 'João'"
     User._meta.get_field('last_name').help_text = "Por exemplo, se seu nome é 'João Carlos Martins da Silva', preencha neste campo 'Carlos Martins da Silva'"
+
+    #Por padrão um novo usuário é Membro da Equipe    
+    User._meta.get_field('is_staff').default = True
     
     def save(self, force_insert=False, force_update=False):
         if self._state.adding:
@@ -90,4 +93,13 @@ class Servidor(User):
     class Meta:
         ordering = ["first_name", "last_name"] # - para ordem decrescente   -- está ordenando nos select e combobox
         verbose_name_plural="Servidores" #nome dos objetos dessa tabela no plural
+        
+        
+class Docente(Servidor):
+    formacao_pedagogica = models.BooleanField(verbose_name="Formação Pedagógica", help_text="Marque está opção se você possui Licenciatura ou Formação Pedagógica")
+    area_concurso = models.ForeignKey(AreaConcurso, on_delete=models.PROTECT, verbose_name="Área Concurso", help_text="Área que consta no edital do concurso")
+    
+    class Meta:
+        ordering = ["first_name", "last_name"] # - para ordem decrescente   -- está ordenando nos select e combobox
+        verbose_name_plural="Docentes" #nome dos objetos dessa tabela no plural
  
