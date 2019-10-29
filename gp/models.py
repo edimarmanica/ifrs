@@ -4,6 +4,10 @@ from django.contrib.auth.models import User
 #minhas classes e funções
 from ifrs.validator import validate_CPF
 
+
+#############################################################################
+##################### SERVIDOR ##############################################
+#############################################################################
 CHOICES_RESIDENCIA = (
   (0, "Já morava em Ibirubá"),
   (1, "Mudou-se para Ibirubá em função do concurso"),
@@ -22,6 +26,7 @@ class Titulacao(models.Model):
         verbose_name="Titulação" #nome dos objetos dessa tabela no singular
         verbose_name_plural="Titulações" #nome dos objetos dessa tabela no plural
         
+        
 class RegimeTrabalho(models.Model):
     descricao = models.CharField(max_length=6, verbose_name="Descrição")
     
@@ -33,6 +38,7 @@ class RegimeTrabalho(models.Model):
         verbose_name="Regime de Trabalho" 
         verbose_name_plural="Regimes de Trabalho"
         
+        
 class SituacaoFuncional(models.Model):
     descricao = models.CharField(max_length=15, verbose_name="Descrição")
     
@@ -43,21 +49,30 @@ class SituacaoFuncional(models.Model):
         ordering = ["descricao"] 
         verbose_name="Situação Funcional" 
         verbose_name_plural="Situações Funcionais"
-        
 
-class AreaConcurso(models.Model):
-    area = models.CharField(max_length=50, verbose_name="Área")
-    area_pai = models.ForeignKey('self', on_delete=models.PROTECT, blank=True, null=True, verbose_name="Área Pai", related_name="pai")
-    nivel = models.IntegerField(verbose_name="Nível")
+class Remuneracao(models.Model):
+    descricao = models.CharField(max_length=5, verbose_name="Descrição")
     
     def __str__(self):
-       return self.area
+       return self.descricao
        
     class Meta:
-        ordering = ["area"] 
-        verbose_name="Área do Concurso" 
-        verbose_name_plural="Áreas do Concurso"
-        
+        ordering = ["descricao"] 
+        verbose_name="Remuneração" 
+        verbose_name_plural="Remunerações"             
+
+class Setor(models.Model):
+    descricao = models.CharField(max_length=60, verbose_name="Descrição")
+    setor_pai = models.ForeignKey('self', on_delete=models.PROTECT, blank=True, null=True, verbose_name="Setor Pai", related_name="pai")
+    remuneracao = models.ForeignKey(Remuneracao, on_delete=models.PROTECT, verbose_name="Remuneração")
+    
+    def __str__(self):
+       return self.descricao
+       
+    class Meta:
+        ordering = ["descricao"]  
+        verbose_name_plural="Setores"
+       
 class Servidor(User):
     cpf = models.CharField(unique=True, max_length=11, validators=[validate_CPF])
     siape = models.CharField(unique=True, max_length=10)
@@ -65,8 +80,9 @@ class Servidor(User):
     regime_trabalho = models.ForeignKey(RegimeTrabalho, on_delete=models.PROTECT, verbose_name="Regime de Trabalho")
     situacao_funcional = models.ForeignKey(SituacaoFuncional, on_delete=models.PROTECT, verbose_name="Situação Funcional")
     residencia = models.IntegerField(choices=CHOICES_RESIDENCIA, verbose_name="Residência")
-    inicio = models.DateField(verbose_name="Início no Campus", help_text="Data em que o servidor entrou em efetivo exercício no Campus.")
-    fim = models.DateField(verbose_name="Saída do Campus", blank=True, null=True, help_text="Último dia que o servidor esteve em efetivo exercício no Campus.")
+    setor = models.ForeignKey(Setor, on_delete=models.PROTECT, verbose_name="Setor de Exercício", null=True, blank=True, help_text="Setor onde o servidor está lotado atualmente.")
+    inicio = models.DateField(verbose_name="Início do Exercício", help_text="Data em que o servidor entrou em efetivo exercício no Campus.")
+    fim = models.DateField(verbose_name="Término do Exercício", blank=True, null=True, help_text="Último dia que o servidor esteve em efetivo exercício no Campus.")
     observacoes = models.TextField(verbose_name="Observações", blank=True, null=True)
     
     #tornando alguns campos da superclasse obrigatórios
@@ -95,6 +111,22 @@ class Servidor(User):
         verbose_name_plural="Servidores" #nome dos objetos dessa tabela no plural
         
         
+#############################################################################
+###################### DOCENTE ##############################################
+#############################################################################
+class AreaConcurso(models.Model):
+    area = models.CharField(max_length=50, verbose_name="Área")
+    area_pai = models.ForeignKey('self', on_delete=models.PROTECT, blank=True, null=True, verbose_name="Área Pai", related_name="pai")
+    nivel = models.IntegerField(verbose_name="Nível")
+    
+    def __str__(self):
+       return self.area
+       
+    class Meta:
+        ordering = ["area"] 
+        verbose_name="Área do Concurso" 
+        verbose_name_plural="Áreas do Concurso"
+        
 class Docente(Servidor):
     formacao_pedagogica = models.BooleanField(verbose_name="Formação Pedagógica", help_text="Marque está opção se você possui Licenciatura ou Formação Pedagógica")
     area_concurso = models.ForeignKey(AreaConcurso, on_delete=models.PROTECT, verbose_name="Área Concurso", help_text="Área que consta no edital do concurso")
@@ -102,4 +134,49 @@ class Docente(Servidor):
     class Meta:
         ordering = ["first_name", "last_name"] # - para ordem decrescente   -- está ordenando nos select e combobox
         verbose_name_plural="Docentes" #nome dos objetos dessa tabela no plural
+
+
+class MeuPerfilDocente(Docente):
+    class Meta:
+        proxy = True
+        ordering = ["first_name", "last_name"] # - para ordem decrescente   -- está ordenando nos select e combobox
+        verbose_name="Meu Perfil - Docente" #nome do objetos dessa tabela
+        verbose_name_plural="Meus Perfis - Docente" #nome dos objetos dessa tabela no plural
+                 
+#############################################################################
+########################## TAE ##############################################
+#############################################################################
+CHOICES_NIVEIS = (
+  (0, "A"),
+  (1, "B"),
+  (2, "C"),
+  (3, "D"),
+  (4, "E")
+)
+    
+class Cargo(models.Model):
+    descricao = models.CharField(max_length=15, verbose_name="Descrição")
+    nivel = models.IntegerField(choices=CHOICES_NIVEIS, verbose_name="Nível")
+    
+    def __str__(self):
+       return self.descricao
+       
+    class Meta:
+        ordering = ["descricao"]  
+        
+        
+class TecnicoAdministrativo(Servidor):
+    cargo = models.ForeignKey(Cargo, on_delete=models.PROTECT)
+    
+    class Meta:
+        ordering = ["first_name", "last_name"] # - para ordem decrescente   -- está ordenando nos select e combobox
+        verbose_name ="Técnico Administrativo em Educação"
+        verbose_name_plural="Técnicos Administrativos em Educação" #nome dos objetos dessa tabela no plural
  
+ 
+class MeuPerfilTecnicoAdministrativo(TecnicoAdministrativo):
+    class Meta:
+        proxy = True
+        ordering = ["first_name", "last_name"] # - para ordem decrescente   -- está ordenando nos select e combobox
+        verbose_name="Meu Perfil - TAE" #nome do objetos dessa tabela
+        verbose_name_plural="Meus Perfis - TAE" #nome dos objetos dessa tabela no plural
