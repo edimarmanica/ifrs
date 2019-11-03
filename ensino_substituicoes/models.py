@@ -17,7 +17,7 @@ CHOICES_SITUACAO = (
 class Periodo(models.Model):
     periodo  = models.CharField(max_length=15, verbose_name="Período - Turno")
     horario_inicial = models.TimeField(verbose_name="Horário Inicial")
-    horario_final = models.TimeField(verbose_name="Horário Inicial")
+    horario_final = models.TimeField(verbose_name="Horário Final")
      
     def __str__(self):
        return self.periodo
@@ -30,12 +30,25 @@ class Periodo(models.Model):
      
 class AplicacaoAtividade(models.Model):
     solicitante = models.ForeignKey(Docente, on_delete=models.PROTECT, verbose_name="Professor(a) solicitante", related_name="solicitante")
-    componente_curricular = models.ForeignKey(ComponenteCurricular, on_delete=models.PROTECT, verbose_name="Professor(a) solicitante")
-    data = models.DateField(verbose_name="Data da substituição")
+    componente_curricular = models.ForeignKey(ComponenteCurricular, on_delete=models.PROTECT, verbose_name="Componente Curricular")
+    data_substituicao = models.DateField(verbose_name="Data da substituição")
+    data_solicitacao = models.DateField(verbose_name="Data da solicitação")
     justificativa = models.TextField()
     periodos = models.ManyToManyField(Periodo, verbose_name="Períodos")
     substituto = models.ForeignKey(Docente, on_delete=models.PROTECT, verbose_name="Professor(a) substituto", related_name="substituto")            
     situacao = models.IntegerField(choices=CHOICES_SITUACAO, verbose_name="Situação", default=0)
-    justificativa_substituto = models.TextField(blank=True, null=True)
-    justificativa_coord_ensino = models.TextField(blank=True, null=True)
+    data_substituto = models.DateField(verbose_name="Data da parecer substituto", blank=True, null=True)
+    justificativa_substituto = models.TextField(blank=True, null=True, verbose_name="Justificativa do Substituto")
+    data_ensino = models.DateField(verbose_name="Data da parecer Ensino", blank=True, null=True)
+    justificativa_coord_ensino = models.TextField(blank=True, null=True, verbose_name="Justificativa do(a) Coord. de Ensino")
     
+class MinhasSolicitacoesAplicacao(AplicacaoAtividade):
+    class Meta:
+        proxy = True
+        ordering = ["data_substituicao"] # - para ordem decrescente   -- está ordenando nos select e combobox
+        verbose_name="Solicitação de Aplicação de Atividade" #nome do objetos dessa tabela
+        verbose_name_plural="Solicitações de Aplicação de Atividade" #nome dos objetos dessa tabela no plural
+        
+#cancelar troca: lista a nXn aí pode marcar vários
+#aprovar troca: lista a nXn aí pode marcar vários
+#rejeitar troca: lista a nXn aí pode marcar vários. Aí pede a justificativa

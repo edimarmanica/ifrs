@@ -1,0 +1,1 @@
+default_app_config = 'ensino_substituicoes.apps.EnsinoSubstituicoesConfig'
