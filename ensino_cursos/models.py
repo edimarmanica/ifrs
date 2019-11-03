@@ -1,4 +1,8 @@
 from django.db import models
+from reportlab.pdfbase.pdfform import TextField
+
+#minhas classes
+from gp.models import Docente
 
 # Create your models here.
 class TipoCurso(models.Model):
@@ -110,5 +114,26 @@ class Curso(models.Model):
     carga_horaria = models.IntegerField(verbose_name="Carga Horária Total", help_text="Digitar a carga horária total do curso, em horas-relógio, excluídos estágios e orientações de TCC.")
     
     def __str__(self):
+       return self.denominacao 
+   
+
+class Turma(models.Model):
+    denominacao = models.CharField(max_length=30, verbose_name="Denominação")
+    periodo = models.IntegerField(verbose_name="Período", help_text="Digitar o semestre para cursos semestrais e o ano para cursos anuais.")
+    curso = models.ForeignKey(Curso, on_delete=models.PROTECT)
+        
+    def __str__(self):
+       return self.denominacao + " - " + self.curso.denominacao
+   
+class ComponenteCurricular(models.Model):
+     denominacao = models.CharField(max_length=30, verbose_name="Denominação")
+     turma = models.ForeignKey(Turma, on_delete=models.PROTECT)
+     ativo = models.BooleanField(help_text="Desmarque esta opção quando o Componente Curricular não fizer mais parte da turma.", default=True)
+     
+     def __str__(self):
        return self.denominacao
-            
+   
+     class Meta:
+        ordering = ["denominacao"] # - para ordem decrescente   -- está ordenando nos select e combobox
+        verbose_name="Componente Curricular" #nome dos objetos dessa tabela no singular
+        verbose_name_plural="Componentes Curriculares" #nome dos objetos dessa tabela no plural
