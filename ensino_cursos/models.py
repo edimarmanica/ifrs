@@ -1,5 +1,4 @@
 from django.db import models
-from reportlab.pdfbase.pdfform import TextField
 
 #minhas classes
 from gp.models import Docente
@@ -127,7 +126,10 @@ class Turma(models.Model):
    
 class ComponenteCurricular(models.Model):
      denominacao = models.CharField(max_length=30, verbose_name="Denominação")
+     curso = models.ForeignKey(Curso, on_delete=models.PROTECT)
      turma = models.ForeignKey(Turma, on_delete=models.PROTECT)
+     
+     
      ativo = models.BooleanField(help_text="Desmarque esta opção quando o Componente Curricular não fizer mais parte da turma.", default=True)
      
      def __str__(self):
