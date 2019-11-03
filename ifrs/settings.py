@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'gp',
     'ensino_cursos',
+    'ensino_substituicoes',
 ]
 
 MIDDLEWARE = [
