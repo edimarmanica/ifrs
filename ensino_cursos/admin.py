@@ -2,6 +2,7 @@ from django.contrib import admin
 
 #minhas classes
 from ensino_cursos.models import TipoCurso, TipoOferta, Modalidade, SituacaoCurso, EixoTecnologico, TurnoFuncionamento, DuracaoPeriodo, PeriodicidadeOferta, Curso, Turma, ComponenteCurricular
+from ensino_cursos.forms import ComponenteCurricularForm
 
 class TurmaInline(admin.TabularInline):
     model = Turma
@@ -18,6 +19,7 @@ class CursoAdmin(admin.ModelAdmin):
 
 class ComponenteCurricularInline(admin.TabularInline):
     model = ComponenteCurricular
+    
 
 class TurmaAdmin(admin.ModelAdmin):
     list_display = ('denominacao', 'periodo', 'curso')  # definindo o que será exibido na listagem
@@ -33,6 +35,7 @@ class ComponenteCurricularAdmin(admin.ModelAdmin):
     list_filter = ('turma', 'ativo')  #definindo os filtros
     search_fields = ['denominacao' ]
     
+    form = ComponenteCurricularForm
 
 # Register your models here.
 admin.site.register(TipoCurso)
