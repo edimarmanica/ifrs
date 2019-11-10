@@ -47,12 +47,23 @@ class MinhasSolicitacoesAplicacao(AplicacaoAtividade):
     def __str__(self):
        return self.componente_curricular.denominacao + " - " + self.data_substituicao.strftime("%d/%m/%Y")
     
+    class Meta:
+        proxy = True
+        ordering = ["-data_substituicao"] # - para ordem decrescente   -- está ordenando nos select e combobox
+        verbose_name="Solicitar Aplicação de Atividade" #nome do objetos dessa tabela
+        verbose_name_plural="Solicitar de Aplicação de Atividade" #nome dos objetos dessa tabela no plural
+
+class AceitarSolicitacaoAplicacao(AplicacaoAtividade):
+    
+    def __str__(self):
+       return self.componente_curricular.denominacao + " - " + self.data_substituicao.strftime("%d/%m/%Y")
     
     class Meta:
         proxy = True
         ordering = ["-data_substituicao"] # - para ordem decrescente   -- está ordenando nos select e combobox
-        verbose_name="Solicitação de Aplicação de Atividade" #nome do objetos dessa tabela
-        verbose_name_plural="Solicitações de Aplicação de Atividade" #nome dos objetos dessa tabela no plural
+        verbose_name="Aceitar/Rejeitar Aplicação de Atividade" #nome do objetos dessa tabela
+        verbose_name_plural="Aceitar/Rejeitar Aplicação de Atividade" #nome dos objetos dessa tabela no plural
+
         
 #cancelar troca: lista a nXn aí pode marcar vários
 #aprovar troca: lista a nXn aí pode marcar vários
