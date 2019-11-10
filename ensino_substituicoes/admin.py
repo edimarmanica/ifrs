@@ -1,5 +1,8 @@
 from django.contrib import admin
 from datetime import datetime
+from django.db import transaction
+from django.contrib import messages
+from django.db import IntegrityError
 
 #minhas classes
 from ensino_substituicoes.models import Periodo, AplicacaoAtividade, MinhasSolicitacoesAplicacao, AceitarSolicitacaoAplicacao
@@ -59,22 +62,34 @@ class AceitarSolicitacaoAplicacaoAdmin(admin.ModelAdmin):
             
     def aceitar(self, request, queryset):
         nr_aceites = 0
-        for obj in queryset:
-            if obj.situacao == 0: #solicitado
-                obj.situacao = 1 #Aceito
-                obj.save()
-                nr_aceites +=1
-        self.message_user(request, "Aceites efetuados: {}".format(nr_aceites))
+        try:
+            with transaction.atomic():
+                for obj in queryset:
+                    if obj.situacao == 0: #solicitado
+                        obj.situacao = 1 #Aceito
+                        obj.save()
+                        nr_aceites +=1
+                    else:
+                        raise IntegrityError
+            self.message_user(request, "Aceites efetuados: {}".format(nr_aceites))
+        except IntegrityError:
+            self.message_user(request, "Algumas solicitações não podem ser aceitas. Nenhum item foi modificado.", level=messages.ERROR)
     aceitar.short_description = "Aceitar Solicitações de Aplicação de Atividade selecionadas."
     
     def rejeitar(self, request, queryset):
         nr_rejeicoes = 0
-        for obj in queryset:
-            if obj.situacao == 0: #solicitado
-                obj.situacao = 2 #Rejeição
-                obj.save()
-                nr_rejeicoes +=1
-        self.message_user(request, "Rejeições efetuadas: {}".format(nr_rejeicoes))
+        try:
+            with transaction.atomic():
+                for obj in queryset:
+                    if obj.situacao == 0: #solicitado
+                        obj.situacao = 2 #Rejeição
+                        obj.save()
+                        nr_rejeicoes +=1
+                    else:
+                        raise IntegrityError
+            self.message_user(request, "Rejeições efetuadas: {}".format(nr_rejeicoes))
+        except IntegrityError:
+            self.message_user(request, "Algumas solicitações não podem ser rejeitadas. Nenhum item foi modificado.", level=messages.ERROR)
     rejeitar.short_description = "Rejeitar Solicitações de Aplicação de Atividade selecionadas."
 
     #removendo a opção de excluir
