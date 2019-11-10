@@ -6,8 +6,7 @@ from ensino_substituicoes.models import Periodo, AplicacaoAtividade, MinhasSolic
 from gp.models import Docente
 
 class MinhasSolicitacaoAplicacaoAdmin(admin.ModelAdmin):
-    #actions = None
-    actions = ['cancelar'] #Disabling all actions for a particular ModelAdmin (desabilita exclusão e alteração). Porém, ele continua habilitando o botão salva na edição, só que não salva, precisa complementar com o comando abaixo
+    actions = ['cancelar'] 
     list_display_links = None #desabilita o link para a edição na listagem
     fields = ('componente_curricular', 'data_substituicao', 'substituto')  # definindo o que será exibido na manutenção
     list_display = ('componente_curricular', 'data_substituicao', 'substituto', 'situacao')  # definindo o que será exibido na listagem
@@ -22,7 +21,9 @@ class MinhasSolicitacaoAplicacaoAdmin(admin.ModelAdmin):
             obj.solicitante = Docente.objects.get(pk=request.user.pk)
             obj.data_solicitacao = datetime.today()
             obj.situacao = 0 #Solicitado
-        super(MinhasSolicitacaoAplicacaoAdmin, self).save_model(request, obj, form, change)
+            super(MinhasSolicitacaoAplicacaoAdmin, self).save_model(request, obj, form, change)
+        else:
+            pass #não altera pq não é permitido alterar 
             
     def cancelar(self, request, queryset):
         nr_cancelamentos = 0
@@ -34,7 +35,13 @@ class MinhasSolicitacaoAplicacaoAdmin(admin.ModelAdmin):
         self.message_user(request, "Cancelamentos realizados: {}".format(nr_cancelamentos))
     cancelar.short_description = "Cancelar Solicitações de Aplicação de Atividade selecionadas."
     
-
+    #removendo a opção de excluir
+    def get_actions(self, request):
+        actions = super().get_actions(request)    
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
+        return actions
+    
 # Register your models here.
 admin.site.register(Periodo)
 admin.site.register(AplicacaoAtividade)
