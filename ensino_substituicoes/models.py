@@ -4,7 +4,7 @@ from django.db import models
 from gp.models import Docente
 from ensino_cursos.models import ComponenteCurricular
 
-CHOICES_SITUACAO = (
+CHOICES_SITUACAO = ( #não alterar números
   (0, "Solicitado"),
   (1, "Aceito pelo Substituto"),
   (2, "Rejeitado pelo Substituto"),
@@ -43,9 +43,14 @@ class AplicacaoAtividade(models.Model):
     justificativa_coord_ensino = models.TextField(blank=True, null=True, verbose_name="Justificativa do(a) Coord. de Ensino")
     
 class MinhasSolicitacoesAplicacao(AplicacaoAtividade):
+    
+    def __str__(self):
+       return self.componente_curricular.denominacao + " - " + self.data_substituicao.strftime("%d/%m/%Y")
+    
+    
     class Meta:
         proxy = True
-        ordering = ["data_substituicao"] # - para ordem decrescente   -- está ordenando nos select e combobox
+        ordering = ["-data_substituicao"] # - para ordem decrescente   -- está ordenando nos select e combobox
         verbose_name="Solicitação de Aplicação de Atividade" #nome do objetos dessa tabela
         verbose_name_plural="Solicitações de Aplicação de Atividade" #nome dos objetos dessa tabela no plural
         

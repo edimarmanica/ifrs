@@ -35,7 +35,7 @@ class ComponenteCurricularAdmin(admin.ModelAdmin):
     list_filter = ('turma', 'ativo')  #definindo os filtros
     search_fields = ['denominacao' ]
     
-    form = ComponenteCurricularForm
+    #form = ComponenteCurricularForm
 
 # Register your models here.
 admin.site.register(TipoCurso)
