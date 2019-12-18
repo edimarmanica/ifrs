@@ -8,8 +8,8 @@ CHOICES_SITUACAO = ( #não alterar números
   (0, "Solicitada"),
   (1, "Aceita pelo Substituto"),
   (2, "Rejeitada pelo Substituto"),
-  (3, "Aprovada pela coordenação de ensino"),
-  (4, "Rejeitada pela coordenação de ensino"),
+  (3, "Deferida pela coordenação de ensino"),
+  (4, "Indeferida pela coordenação de ensino"),
   (5, "Cancelada")
 )
 

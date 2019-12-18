@@ -112,7 +112,7 @@ class DeferirSolicitacaoAplicacaoAdmin(admin.ModelAdmin):
     search_fields = ['componente_curricular' ]
     
     def get_queryset(self, request):
-        return self.model.objects.filter(Q(situacao = 1) | Q(situacao = 3) | Q(situacao = 4) | Q(situacao = 5)) #exibe apenas as solicitações aceitas pelo substituto
+        return self.model.objects.filter() 
     
     def save_model(self, request, obj, form, change):
         pass #não pode adicionar nem alterar 
@@ -123,12 +123,12 @@ class DeferirSolicitacaoAplicacaoAdmin(admin.ModelAdmin):
             with transaction.atomic():
                 for obj in queryset:
                     if obj.situacao == 1: #
-                        obj.situacao = 1 #Aceito
+                        obj.situacao = 3 #Deferida
                         obj.save()
                         nr_deferimentos +=1
                     else:
                         raise IntegrityError
-            self.message_user(request, "Deferimentos efetuados: {}".format(nr_aceites))
+            self.message_user(request, "Deferimentos efetuados: {}".format(nr_deferimentos))
         except IntegrityError:
             self.message_user(request, "Apenas solicitações com situação='Aceita' ou situação='Indeferida' podem ser deferidas.", level=messages.ERROR)
     deferir.short_description = "Deferir as Solicitações de Aplicação de Atividade selecionadas."
