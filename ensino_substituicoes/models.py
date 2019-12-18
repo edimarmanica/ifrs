@@ -5,12 +5,12 @@ from gp.models import Docente
 from ensino_cursos.models import ComponenteCurricular
 
 CHOICES_SITUACAO = ( #não alterar números
-  (0, "Solicitado"),
-  (1, "Aceito pelo Substituto"),
-  (2, "Rejeitado pelo Substituto"),
-  (3, "Aprovado pela coordenação de ensino"),
-  (4, "Rejeitado pela coordenação de ensino"),
-  (5, "Cancelado")
+  (0, "Solicitada"),
+  (1, "Aceita pelo Substituto"),
+  (2, "Rejeitada pelo Substituto"),
+  (3, "Aprovada pela coordenação de ensino"),
+  (4, "Rejeitada pela coordenação de ensino"),
+  (5, "Cancelada")
 )
 
 # Create your models here.
@@ -33,7 +33,7 @@ class AplicacaoAtividade(models.Model):
     componente_curricular = models.ForeignKey(ComponenteCurricular, on_delete=models.PROTECT, verbose_name="Componente Curricular")
     data_substituicao = models.DateField(verbose_name="Data da substituição")
     data_solicitacao = models.DateField(verbose_name="Data da solicitação")
-    justificativa = models.TextField()
+    justificativa = models.TextField(blank=True, null=True)
     periodos = models.ManyToManyField(Periodo, verbose_name="Períodos")
     substituto = models.ForeignKey(Docente, on_delete=models.PROTECT, verbose_name="Professor(a) substituto", related_name="substituto")            
     situacao = models.IntegerField(choices=CHOICES_SITUACAO, verbose_name="Situação", default=0)
@@ -50,8 +50,8 @@ class MinhasSolicitacoesAplicacao(AplicacaoAtividade):
     class Meta:
         proxy = True
         ordering = ["-data_substituicao"] # - para ordem decrescente   -- está ordenando nos select e combobox
-        verbose_name="Solicitar Aplicação de Atividade" #nome do objetos dessa tabela
-        verbose_name_plural="Solicitar de Aplicação de Atividade" #nome dos objetos dessa tabela no plural
+        verbose_name="Minha Solicitação de Aplicação de Atividade" #nome do objetos dessa tabela
+        verbose_name_plural="Minhas Solicitações de Aplicação de Atividade" #nome dos objetos dessa tabela no plural
 
 class AceitarSolicitacaoAplicacao(AplicacaoAtividade):
     
@@ -61,8 +61,20 @@ class AceitarSolicitacaoAplicacao(AplicacaoAtividade):
     class Meta:
         proxy = True
         ordering = ["-data_substituicao"] # - para ordem decrescente   -- está ordenando nos select e combobox
-        verbose_name="Aceitar/Rejeitar Aplicação de Atividade" #nome do objetos dessa tabela
-        verbose_name_plural="Aceitar/Rejeitar Aplicação de Atividade" #nome dos objetos dessa tabela no plural
+        verbose_name="Meu aceite/Rejeição de Aplicação de Atividade" #nome do objetos dessa tabela
+        verbose_name_plural="Meus aceites/rejeições de Aplicação de Atividade" #nome dos objetos dessa tabela no plural
+
+
+class DeferirSolicitacaoAplicacao(AplicacaoAtividade):
+    
+    def __str__(self):
+       return self.componente_curricular.denominacao + " - " + self.data_substituicao.strftime("%d/%m/%Y")
+    
+    class Meta:
+        proxy = True
+        ordering = ["-data_substituicao"] # - para ordem decrescente   -- está ordenando nos select e combobox
+        verbose_name="Meu deferimento/indeferimento de Aplicação de Atividade" #nome do objetos dessa tabela
+        verbose_name_plural="Meus deferimentos/indeferimentos de Aplicação de Atividade" #nome dos objetos dessa tabela no plural
 
         
 #cancelar troca: lista a nXn aí pode marcar vários
