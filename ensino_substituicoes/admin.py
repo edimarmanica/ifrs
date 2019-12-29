@@ -4,6 +4,8 @@ from django.db import transaction
 from django.contrib import messages
 from django.db import IntegrityError
 from django.db.models import Q
+from django.shortcuts import render, redirect 
+
 
 #minhas classes
 from ensino_substituicoes.models import Periodo, AplicacaoAtividade, MinhasSolicitacoesAplicacao, AceitarSolicitacaoAplicacao, DeferirSolicitacaoAplicacao
@@ -12,7 +14,7 @@ from gp.models import Docente
 class MinhasSolicitacaoAplicacaoAdmin(admin.ModelAdmin):
     actions = ['cancelar'] 
     list_display_links = None #desabilita o link para a edição na listagem
-    fields = ('componente_curricular', 'data_substituicao', 'substituto', 'justificativa')  # definindo o que será exibido na manutenção
+    fields = ('componente_curricular', 'data_substituicao', 'substituto', 'justificativa', 'periodos')  # definindo o que será exibido na manutenção
     list_display = ('componente_curricular', 'data_substituicao', 'substituto', 'situacao')  # definindo o que será exibido na listagem
     list_filter = ('substituto', 'situacao')  #definindo os filtros
     search_fields = ['componente_curricular' ]
@@ -69,6 +71,7 @@ class AceitarSolicitacaoAplicacaoAdmin(admin.ModelAdmin):
                 for obj in queryset:
                     if obj.situacao == 0 or obj.situacao == 2: #solicitada ou rejeitada
                         obj.situacao = 1 #Aceito
+                        obj.data_substituto = datetime.today()
                         obj.save()
                         nr_aceites +=1
                     else:
@@ -85,6 +88,7 @@ class AceitarSolicitacaoAplicacaoAdmin(admin.ModelAdmin):
                 for obj in queryset:
                     if obj.situacao == 0: #solicitado
                         obj.situacao = 2 #Rejeição
+                        obj.data_substituto = datetime.today()
                         obj.save()
                         nr_rejeicoes +=1
                     else:
@@ -124,6 +128,7 @@ class DeferirSolicitacaoAplicacaoAdmin(admin.ModelAdmin):
                 for obj in queryset:
                     if obj.situacao == 1: #
                         obj.situacao = 3 #Deferida
+                        obj.data_ensino = datetime.today()
                         obj.save()
                         nr_deferimentos +=1
                     else:
@@ -134,7 +139,18 @@ class DeferirSolicitacaoAplicacaoAdmin(admin.ModelAdmin):
     deferir.short_description = "Deferir as Solicitações de Aplicação de Atividade selecionadas."
     
     def indeferir(self, request, queryset):
-        self.message_user(request, "Não implementada.", level=messages.ERROR)
+
+
+        if queryset.count() != 1:
+            self.message_user(request, "Você só pode indeferir uma Solicitação de Aplicação de Atividade por vez.", level=messages.WARNING)
+            return
+        
+        if (queryset[0].situacao != 1):
+            self.message_user(request, "Você só pode indeferir uma Solicitação de Aplicação de Atividade com situação='Aceita'.", level=messages.WARNING)
+            return  
+
+        return views.indeferir_aplicacao_atividade(request, queryset[0])
+        #return render(request, 'indeferir_aplicacao_atividade.html', {'obj': queryset[0]})
     indeferir.short_description = "Indeferir as Solicitações de Aplicação de Atividade selecionadas."
 
     #removendo a opção de excluir

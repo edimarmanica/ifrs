@@ -15,9 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.contrib.auth.decorators import login_required
+
+#minhas views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    #path('indeferir_aplicacao_atividade/', login_required(IndeferirAplicacaoAtividade.as_view()), name="indeferir-ap"),
 ]
 
 

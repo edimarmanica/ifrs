@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'bootstrapform',
     'gp',
     'ensino_cursos',
     'ensino_substituicoes',
@@ -57,7 +58,7 @@ ROOT_URLCONF = 'ifrs.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['ensino_substituicoes/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
